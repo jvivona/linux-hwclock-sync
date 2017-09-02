@@ -13,6 +13,8 @@ maxDiffSec="1"
 msgNoConnection="No connection to time-server"
 msgConnection="Connection to time-server"
 
+echo $(date)": Starting Check" >> $LOGFILE
+
 # Check for NTP connection
 if ( ntpq -p | grep -q "^*"  ); then
         echo $msgConnection
@@ -33,6 +35,7 @@ if ( ntpq -p | grep -q "^*"  ); then
         fi
 
         echo "Difference: $secDiff sec"
+		echo "Difference: $secDiff sec" >> $LOGFILE
 
         msgDiff="HwClock difference: $secDiff sec"
         if [ "$secDiff" -gt "$maxDiffSec" ] ; then
