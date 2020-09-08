@@ -7,6 +7,21 @@ if [ ! -f $LOGFILE ]; then
   touch $LOGFILE
 fi
 
+#check Debian Version - HWCLOCK is in different locations depending on version + not necessarily in PATH
+# --debug has been depricated as well, replace with --verbose in Debian 10
+case `cat /etc/debian_version` in
+	9*) hwclockPath="/sbin/"
+		hwclockVerbose="--debug"
+		;;
+	10*) hwclockPath="/usr/sbin/"
+		hwclockVerbose="--verbose"
+		;;
+	*)  hwclockPath=""
+		hwClockVerbos="--debug"	
+		;;
+esac
+
+
 # Set the maximum allowed difference in seconds between Hw-Clock and Sys-Clock
 maxDiffSec="1"
 
@@ -20,7 +35,7 @@ if ( ntpq -p | grep -q "^*"  ); then
         echo $msgConnection
         echo "---------------------------------"
 
-        secHwClock=$(sudo hwclock --debug | grep "^Hw clock time" | awk '{print $(NF-3)}')
+        secHwClock=$(${hwclockPath}hwclock ${hwclockVerbose} | grep "^Hw clock time" | awk '{print $(NF-3)}')
         echo "HwClock: $secHwClock sec"
 
         secSysClock=$(date +"%s")
@@ -44,7 +59,7 @@ if ( ntpq -p | grep -q "^*"  ); then
                 echo "Hw-Clock will be updated"
 
                 # Update hwclock from system clock
-                sudo hwclock -w
+                ${hwclockPath}hwclock -w
                 msgDiff="$msgDiff --> HW-Clock updated."
         fi
         if !(awk '/./{line=$0} END{print line}' $LOGFILE | grep -q "$msgConnection") || [ "$secDiff" -gt "$maxDiffSec" ]; then
