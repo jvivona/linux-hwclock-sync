@@ -17,7 +17,7 @@ case `cat /etc/debian_version` in
 		hwclockVerbose="--verbose"
 		;;
 	*)  hwclockPath=""
-		hwClockVerbos="--debug"	
+		hwClockVerbose="--debug"	
 		;;
 esac
 
